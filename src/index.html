@@ -22,32 +22,61 @@
   <script>
     
     Vue.component('titulo', {
-      template:
+      template: //html
       `
       <div>
-        <h1>numero {{ $store.state.numero }}</h1>
+        <h1>numero {{ numero }}</h1>
         <filho></filho>
       </div>   
-      `
+      `,
+      computed: {
+        ...Vuex.mapState(['numero'])
+      }
     });
 
     Vue.component('filho', {
-      template:
+      template: //html
       `
       <div>
-        <button @click="$store.commit('aumentar')">+</button>
-        <h1>numero {{ $store.state.numero }}</h1>
+        <button @click="aumentar">+</button>
+        <button @click="diminuir(2)">-</button>
+        <button @click="obterCursos">Obter Cursos</button>
+        <h1>numero {{ numero }}</h1>
+        <ul v-for="item of cursos">
+          <li>{{item.nome}}</li>
+        </ul>
       </div>
-      `
+      `,
+      computed: {
+        ...Vuex.mapState(['numero','cursos'])
+      },
+      methods: {
+        ...Vuex.mapMutations(['aumentar','diminuir']),
+        ...Vuex.mapActions(['obterCursos'])
+      }
     });
 
     const store = new Vuex.Store({
       state: {
-        numero: 10
+        numero: 10,
+        cursos: []
       },
       mutations: {
         aumentar(state){
           state.numero ++
+        },
+        diminuir(state,n){
+          state.numero -= n
+        },
+        preencherCursos(state, cursosacao){
+          state.cursos = cursosacao
+        }
+      },
+      actions: {
+        obterCursos: async function({ commit }) {
+          const data = await fetch('cursos.json');
+          const cursos = await data.json();
+          commit('preencherCursos', cursos)
         }
       }
     })
